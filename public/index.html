@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Study Ladder</title>
+<meta name="description" content="Learn any subject from the basics through exam-style questions, with AI marking and coaching.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M5 2v18M17 2v18M5 6h12M5 11h12' stroke='%2315233a' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M5 16h12' stroke='%23f3cf3e' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: a single study column on squared exercise-book paper; the path is a ladder of rungs, lessons are one question card at a time. */
+:root{
+  --paper:#eef2f1; --grid:rgba(30,60,80,.06); --card:#ffffff; --ink:#15233a; --ink-2:#4b5a6e; --line:#d5dde0;
+  --mark:#f3cf3e; --mark-ink:#3d3000; --accent:#1f5f8b; --accent-soft:#e1edf5;
+  --good:#1d7a52; --good-soft:#e2f3ea; --warn:#a2610a; --warn-soft:#fbefd9; --bad:#b23a3a; --bad-soft:#f8e3e1; --ai:#6a4fb0; --ai-soft:#eee9f9;
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#111821; --grid:rgba(160,200,230,.05); --card:#18222e; --ink:#e6edf3; --ink-2:#9fb0c2; --line:#2b3947;
+  --mark:#e8c53a; --mark-ink:#241c00; --accent:#7cb8e4; --accent-soft:#1d3346;
+  --good:#5fcf98; --good-soft:#163428; --warn:#e7aa52; --warn-soft:#3a2b14; --bad:#f08a84; --bad-soft:#3d1f1e; --ai:#b8a3f0; --ai-soft:#2a2340; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#111821; --grid:rgba(160,200,230,.05); --card:#18222e; --ink:#e6edf3; --ink-2:#9fb0c2; --line:#2b3947;
+  --mark:#e8c53a; --mark-ink:#241c00; --accent:#7cb8e4; --accent-soft:#1d3346;
+  --good:#5fcf98; --good-soft:#163428; --warn:#e7aa52; --warn-soft:#3a2b14; --bad:#f08a84; --bad-soft:#3d1f1e; --ai:#b8a3f0; --ai-soft:#2a2340; color-scheme:dark}
+html,body{min-height:100%}
+body{background:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+.wrap{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 64px;display:flex;flex-direction:column;gap:18px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+header.top .in{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;align-items:center;gap:12px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;cursor:pointer;background:none;border:0;color:var(--ink);padding:0}
+.brand svg{flex:none}
+.crumb{color:var(--ink-2);font-size:14px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.store{font-family:var(--f-mono);font-size:11px;color:var(--ink-2);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;max-width:38vw;overflow:hidden;text-overflow:ellipsis}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(26px,5vw,34px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:21px;font-weight:700}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+.muted{color:var(--ink-2)}
+.small{font-size:14px}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.btn{font:inherit;font-weight:700;font-size:15px;border-radius:8px;border:1.5px solid var(--ink);background:var(--ink);color:var(--card);padding:9px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink-2)}
+.btn.mark{background:var(--mark);border-color:var(--mark);color:var(--mark-ink)}
+.btn.small{font-size:13.5px;padding:6px 11px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,.opt:focus-visible,.rung:focus-visible,.tab:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.link{background:none;border:0;padding:0;font:inherit;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14.5px}
+label.f .muted{font-weight:400}
+input[type=text],textarea,select{font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;box-sizing:border-box}
+textarea{min-height:110px;resize:vertical;line-height:1.5}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{display:flex;gap:8px;align-items:flex-start;border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:400;flex:1 1 180px}
+.seg label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.seg input{margin-top:4px;accent-color:var(--accent)}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:18px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;cursor:pointer;background:var(--paper)}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.files{display:flex;flex-direction:column;gap:6px}
+.file{display:flex;gap:10px;align-items:center;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--card);min-width:0}
+.file .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px;border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.chip.mcq{color:var(--accent);border-color:currentColor}
+.chip.saq{color:var(--good);border-color:currentColor}
+.chip.essay{color:var(--warn);border-color:currentColor}
+.chip.ai{color:var(--ai);border-color:currentColor;background:var(--ai-soft)}
+.chip.ex{background:var(--mark);color:var(--mark-ink);border-color:var(--mark)}
+.marks{font-family:var(--f-mono);font-size:13px;font-weight:600;white-space:nowrap}
+.log{font-family:var(--f-mono);font-size:13px;display:flex;flex-direction:column;gap:4px}
+.log .ok{color:var(--good)} .log .err{color:var(--bad)}
+.spin{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;display:inline-block;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
+.courses{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.course{cursor:pointer;text-align:left;font:inherit;color:inherit}
+.course:hover{border-color:var(--ink-2)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--good)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{font:inherit;font-weight:700;font-size:14.5px;background:none;border:0;border-bottom:3px solid transparent;padding:8px 12px;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--mark)}
+/* ladder */
+.unit{display:flex;flex-direction:column;gap:8px}
+.unit-h{display:flex;gap:10px;align-items:baseline}
+.unit-h .n{font-family:var(--f-mono);font-size:12px;color:var(--ink-2)}
+.ladder{display:flex;flex-direction:column;gap:6px;border-left:3px solid var(--line);margin-left:9px;padding-left:16px}
+.rung{position:relative;display:flex;gap:12px;align-items:center;text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;min-width:0}
+.rung:hover{border-color:var(--ink-2)}
+.rung::before{content:"";position:absolute;left:-24px;top:50%;width:13px;height:13px;margin-top:-7.5px;border-radius:50%;background:var(--paper);border:3px solid var(--line)}
+.rung.done::before{background:var(--good);border-color:var(--good)}
+.rung.shaky::before{background:var(--warn);border-color:var(--warn)}
+.rung.next{border-color:var(--ink);box-shadow:3px 3px 0 var(--mark)}
+.rung.next::before{border-color:var(--ink)}
+.rung.skip::before{background:var(--accent);border-color:var(--accent)}
+.rung .t{flex:1;min-width:0}
+.rung .t b{display:block}
+.rung .pct{font-family:var(--f-mono);font-size:13px;font-weight:600}
+/* lesson */
+.progress{display:flex;gap:4px}
+.progress i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.progress i.on{background:var(--ink)} .progress i.good{background:var(--good)} .progress i.part{background:var(--warn)} .progress i.bad{background:var(--bad)}
+.learn{background:var(--accent-soft);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.learn .eyebrow{color:var(--accent)}
+.prose{display:flex;flex-direction:column;gap:8px}
+.prose ul{margin:0;padding-left:20px}
+.prose code{font-family:var(--f-mono);font-size:.92em;background:var(--paper);padding:1px 4px;border-radius:4px}
+.prose mark{background:var(--mark);color:var(--mark-ink);padding:0 3px;border-radius:3px}
+.q{font-size:17.5px;font-weight:700;line-height:1.45}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;font:inherit;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:600;width:22px;height:22px;flex:none;border-radius:5px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px}
+.opt[aria-pressed=true]{border-color:var(--ink)} .opt[aria-pressed=true] .k{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.opt.right{border-color:var(--good);background:var(--good-soft)} .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt .why{display:block;font-size:14px;color:var(--ink-2);margin-top:4px}
+.opt:disabled{cursor:default}
+.fb{border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:8px;border:1.5px solid}
+.fb.correct{background:var(--good-soft);border-color:var(--good)} .fb.partial{background:var(--warn-soft);border-color:var(--warn)} .fb.incorrect{background:var(--bad-soft);border-color:var(--bad)}
+.fb h3{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.fb ul{margin:0;padding-left:20px}
+details{border-top:1px solid var(--line);padding-top:8px}
+summary{cursor:pointer;font-weight:700;font-size:14.5px}
+.note{font-size:14px;border-left:3px solid var(--ai);padding:4px 10px;background:var(--ai-soft);border-radius:0 6px 6px 0}
+.err{color:var(--bad);font-size:14.5px}
+.empty{text-align:center;padding:28px 18px;color:var(--ink-2)}
+.score-big{font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14.5px}
+.kv dt{color:var(--ink-2)} .kv dd{margin:0}
+.hero{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:end}
+@media (max-width:560px){.hero{grid-template-columns:1fr}}
+.steps-art{display:flex;flex-direction:column-reverse;gap:5px;width:120px}
+.steps-art i{display:block;height:9px;border-radius:2px;background:var(--line)}
+.steps-art i:nth-child(1){width:30%;background:var(--good)} .steps-art i:nth-child(2){width:48%;background:var(--good)} .steps-art i:nth-child(3){width:66%;background:var(--mark)} .steps-art i:nth-child(4){width:84%} .steps-art i:nth-child(5){width:100%}
+@media (max-width:560px){.steps-art{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <button class="brand" id="homeBtn" aria-label="Study Ladder home">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 2v18M17 2v18M5 6h12M5 11h12M5 16h12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M5 16h12" stroke="var(--mark)" stroke-width="2.4" stroke-linecap="round"/></svg>
+    Study Ladder
+  </button>
+  <span class="crumb" id="crumb"></span>
+  <span class="store" id="storeBadge"></span>
+  <button class="link small" id="signOut" hidden>Sign out</button>
+</div></header>
+<main class="wrap" id="app" aria-live="polite">
+  <div class="card empty"><span class="spin"></span> Loading your courses…</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script>
+/* ============ tiny helpers ============ */
+const $ = (s, el = document) => el.querySelector(s);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'class') el.className = v;
+    else if (k === 'html') el.innerHTML = v;
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat(Infinity)) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : String(kid));
+  return el;
+}
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function inline(s) {
+  return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)==/g, '<mark>$1</mark>')
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<i>$2</i>').replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+function md(s) {
+  const out = []; let list = null;
+  for (const raw of String(s ?? '').split(/\n/)) {
+    const line = raw.trim();
+    const m = line.match(/^([-*•]|\d+[.)])\s+(.*)/);
+    if (m) { if (!list) { list = []; } list.push(`<li>${inline(m[2])}</li>`); continue; }
+    if (list) { out.push(`<ul>${list.join('')}</ul>`); list = null; }
+    if (line) out.push(`<p>${inline(line)}</p>`);
+  }
+  if (list) out.push(`<ul>${list.join('')}</ul>`);
+  return h('div', { class: 'prose', html: out.join('') });
+}
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+const typeName = { mcq: 'MCQ', saq: 'Short answer', essay: 'Essay' };
+
+/* ============ storage: each student's private rows in Supabase (row-level security) ============ */
+let sb = null;
+function dbErr(e) { console.error(e); return new Error('Could not save or load your work. Check your connection and try again.'); }
+const Store = {
+  uid: null, name: '', isAdmin: false,
+  async init(user) {
+    this.uid = user.id;
+    const m = user.user_metadata || {};
+    this.name = (m.full_name || m.name || (user.email || '').split('@')[0] || 'Student').slice(0, 80);
+    try { const { data } = await sb.rpc('is_admin'); this.isAdmin = !!data; } catch {}
+  },
+  async put(col, id, obj) {
+    const { error } = await sb.from('docs').upsert({ owner: this.uid, col, id, data: JSON.parse(JSON.stringify(obj)), updated_at: new Date().toISOString() });
+    if (error) throw dbErr(error);
+  },
+  async get(col, id) {
+    const { data, error } = await sb.from('docs').select('data').eq('col', col).eq('id', id).maybeSingle();
+    if (error) throw dbErr(error);
+    return data?.data ?? null;
+  },
+  async list(col, field, value) {
+    let q = sb.from('docs').select('id,data').eq('col', col);
+    if (field) q = q.eq('data->>' + field, value);
+    const { data, error } = await q;
+    if (error) throw dbErr(error);
+    return data.map(r => ({ ...r.data, id: r.id }));
+  },
+  async del(col, id) {
+    const { error } = await sb.from('docs').delete().eq('col', col).eq('id', id);
+    if (error) throw dbErr(error);
+  }
+};
+
+/* ============ Claude ============ */
+const imgLimits = { maxCount: 4 };
+const TUTOR = `You are the tutor inside Study Ladder, an app where students learn a subject by working through exam-style questions in a careful teaching order.
+Treat the student as a complete beginner unless told otherwise: define every term the first time it appears, use plain language and everyday examples, and build each idea only on ideas already taught.
+Be accurate. Never invent facts, figures, quotes or mark schemes you are unsure of; prefer standard textbook content. Write in the same language as the student's course materials (English if unclear).`;
+
+class AIError extends Error {}
+// Photos are shrunk to JPEG so several fit in one request.
+async function toJpeg(blob) {
+  const bmp = await createImageBitmap(blob);
+  const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  const out = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.82));
+  const b64 = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(out); });
+  return { media_type: 'image/jpeg', data: b64 };
+}
+async function encodeImages(blobs) {
+  try { return await Promise.all(blobs.slice(0, imgLimits.maxCount).map(toJpeg)); }
+  catch { throw new AIError('One of the images could not be read. Try a JPEG or PNG photo.'); }
+}
+async function callAI(payload) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) throw new AIError('Your sign-in has expired. Sign in again.');
+  let r;
+  try { r = await fetch('/api/ai', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + session.access_token }, body: JSON.stringify(payload) }); }
+  catch { throw new AIError('Could not reach Study Ladder. Check your internet connection and try again.'); }
+  let j = {}; try { j = await r.json(); } catch {}
+  if (!r.ok) { const e = new AIError(j.error || 'The AI tutor had a problem. Try again.'); e.code = j.code || 'http_' + r.status; throw e; }
+  return j;
+}
+async function askJSON(prompt, { tier = 'default', images, kind = 'other' } = {}) {
+  const imgs = images?.length ? await encodeImages(images) : [];
+  for (let attempt = 0; ; attempt++) {
+    try { return (await callAI({ prompt, tier, kind, json: true, images: imgs })).value; }
+    catch (e) { if (e.code === 'invalid_json' && attempt === 0) continue; throw e; }
+  }
+}
+async function askText(prompt, { tier = 'default', images, kind = 'other' } = {}) {
+  const imgs = images?.length ? await encodeImages(images) : [];
+  return (await callAI({ prompt, tier, kind, json: false, images: imgs })).text;
+}
+
+/* ============ file reading ============ */
+const libs = {};
+function loadScript(src) {
+  return libs[src] ??= new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load a reader for this file type.')); document.head.append(s); });
+}
+const CDN = 'https://cdn.jsdelivr.net/npm/';
+async function pdfLib() {
+  await loadScript(CDN + 'pdfjs-dist@3.11.174/build/pdf.worker.min.js'); // main-thread worker (no cross-origin Worker needed)
+  await loadScript(CDN + 'pdfjs-dist@3.11.174/build/pdf.min.js');
+  return window.pdfjsLib;
+}
+async function blobsToText(blobs, name, log) {
+  const max = imgLimits.maxCount;
+  let text = '';
+  for (let i = 0; i < blobs.length; i += max) {
+    log?.(`Reading ${name}: images ${i + 1}–${Math.min(i + max, blobs.length)} of ${blobs.length}`);
+    text += '\n' + await askText(`Transcribe every piece of text in these images of study material (${name}) faithfully, in reading order. Keep headings and bullet points. Describe each diagram, graph or table in one or two lines as [Diagram: ...]. Write equations in plain text. Output the transcription only.`, { images: blobs.slice(i, i + max), kind: 'other' });
+  }
+  return text.trim();
+}
+async function readFile(file, log) {
+  const name = file.name, ext = name.split('.').pop().toLowerCase(), buf = () => file.arrayBuffer();
+  if (['txt', 'md', 'csv', 'tex', 'html', 'htm', 'rtf'].includes(ext) || file.type.startsWith('text/')) {
+    let t = await file.text(); if (/^html?$/.test(ext)) t = new DOMParser().parseFromString(t, 'text/html').body.innerText; return t;
+  }
+  if (ext === 'pdf') {
+    const pdfjs = await pdfLib();
+    const doc = await pdfjs.getDocument({ data: new Uint8Array(await buf()) }).promise;
+    let out = [];
+    for (let p = 1; p <= doc.numPages; p++) {
+      if (p % 20 === 1) log?.(`Reading ${name}: page ${p} of ${doc.numPages}`);
+      const page = await doc.getPage(p); const tc = await page.getTextContent();
+      let line = '', lastY = null; const lines = [];
+      for (const it of tc.items) { const y = it.transform?.[5]; if (lastY !== null && Math.abs(y - lastY) > 2) { lines.push(line); line = ''; } line += it.str; lastY = y; }
+      lines.push(line); out.push(`[Page ${p}]\n` + lines.join('\n'));
+    }
+    const text = out.join('\n\n');
+    if (text.replace(/\[Page \d+\]|\s/g, '').length < 40 * doc.numPages * 0.3) {
+      // looks scanned: render pages and let Claude read them
+      const pages = Math.min(doc.numPages, 30), blobs = [];
+      log?.(`${name} looks scanned. Rendering ${pages} page${pages > 1 ? 's' : ''} for Claude to read…`);
+      for (let p = 1; p <= pages; p++) {
+        const page = await doc.getPage(p), vp = page.getViewport({ scale: 1.6 });
+        const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+        await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+        blobs.push(await new Promise(r => c.toBlob(r, 'image/jpeg', 0.85)));
+      }
+      return blobsToText(blobs, name, log);
+    }
+    return text;
+  }
+  if (ext === 'docx') {
+    await loadScript(CDN + 'mammoth@1.6.0/mammoth.browser.min.js');
+    return (await mammoth.extractRawText({ arrayBuffer: await buf() })).value;
+  }
+  if (ext === 'pptx') {
+    await loadScript(CDN + 'jszip@3.10.1/dist/jszip.min.js');
+    const zip = await JSZip.loadAsync(await buf());
+    const num = f => +f.match(/(\d+)\.xml$/)[1];
+    const grab = async f => [...(await zip.file(f).async('string')).matchAll(/<a:t>([^<]*)<\/a:t>|<\/a:p>/g)].map(m => m[1] ?? '\n').join('').replace(/\n{2,}/g, '\n').trim();
+    const slides = Object.keys(zip.files).filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f)).sort((a, b) => num(a) - num(b));
+    const out = [];
+    for (const f of slides) {
+      let t = `[Slide ${num(f)}]\n` + await grab(f);
+      const notes = `ppt/notesSlides/notesSlide${num(f)}.xml`;
+      if (zip.file(notes)) { const n = await grab(notes); if (n.replace(/\d/g, '').trim()) t += `\n(Speaker notes: ${n})`; }
+      out.push(t);
+    }
+    return out.join('\n\n').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+  }
+  if (file.type.startsWith('image/')) return blobsToText([file], name, log);
+  throw new Error(`${name}: this file type isn't supported yet. Use PDF, PowerPoint (.pptx), Word (.docx), text or photos.`);
+}
+
+/* ============ source text helpers ============ */
+const CHUNK = 60000;
+async function saveSource(courseId, name, kind, text) {
+  const base = uid(), parts = Math.max(1, Math.ceil(text.length / CHUNK));
+  for (let i = 0; i < parts; i++) await Store.put('sources', `${base}-${i}`, { courseId, group: base, name, kind, part: i, parts, chars: text.length, text: text.slice(i * CHUNK, (i + 1) * CHUNK), at: Date.now() });
+}
+async function loadSources(courseId) {
+  const rows = await Store.list('sources', 'courseId', courseId);
+  const groups = {};
+  for (const r of rows) (groups[r.group] ??= { group: r.group, name: r.name, kind: r.kind, chars: r.chars, at: r.at, parts: [] }).parts[r.part] = r;
+  return Object.values(groups).map(g => ({ ...g, text: g.parts.map(p => p?.text || '').join(''), ids: g.parts.filter(Boolean).map(p => p.id) })).sort((a, b) => a.at - b.at);
+}
+function overviewText(sources, budget = 90000) {
+  const mat = sources.filter(s => s.kind === 'material'); if (!mat.length) return '';
+  const total = mat.reduce((n, s) => n + s.text.length, 0);
+  return mat.map(s => {
+    const share = Math.floor(budget * s.text.length / Math.max(total, budget));
+    let t = s.text;
+    if (t.length > share) { // evenly spaced slices so the whole book is represented
+      const n = Math.max(4, Math.floor(share / 1500)), step = t.length / n;
+      t = Array.from({ length: n }, (_, i) => t.slice(Math.floor(i * step), Math.floor(i * step) + Math.floor(share / n))).join('\n[…]\n');
+    }
+    return `=== ${s.name} ===\n${t}`;
+  }).join('\n\n');
+}
+function relevantText(sources, words, budget = 22000) {
+  const mat = sources.filter(s => s.kind === 'material'); if (!mat.length) return '';
+  const keys = [...new Set(words.flatMap(w => String(w).toLowerCase().split(/[^\p{L}\p{N}]+/u)).filter(w => w.length > 3))];
+  const blocks = [];
+  for (const s of mat) { const t = s.text; for (let i = 0; i < t.length; i += 1200) blocks.push({ src: s.name, pos: i, text: t.slice(i, i + 1400) }); }
+  for (const b of blocks) { const low = b.text.toLowerCase(); b.score = keys.reduce((n, k) => n + (low.split(k).length - 1) * (k.length > 6 ? 2 : 1), 0); }
+  const picked = blocks.filter(b => b.score > 0).sort((a, b) => b.score - a.score).slice(0, Math.floor(budget / 1400));
+  picked.sort((a, b) => a.src === b.src ? a.pos - b.pos : a.src.localeCompare(b.src));
+  return picked.map(b => `--- from "${b.src}" ---\n${b.text}`).join('\n');
+}
+const examText = c => c.exam?.summary ? `Exam format (from the student's past paper): ${c.exam.summary}\nQuestion types: ${(c.exam.types || []).map(t => `${t.type} (${t.marks || '?'} marks; ${t.notes || ''})`).join('; ')}\nCommand words: ${(c.exam.commandWords || []).join(', ')}\nStyle notes: ${c.exam.styleNotes || ''}` : 'No past paper given: use a clear, standard exam style for this subject and level.';
+const levelText = { new: 'completely new to this subject (start from the very basics)', some: 'knows a little, but treat gaps as likely and still start from the basics', revising: 'has studied this before and is revising for an exam (still teach in order from the basics, but more briskly)' };
+
+/* ============ AI tasks ============ */
+async function analyseExam(text, images) {
+  return askJSON(`${TUTOR}
+Below is ${images?.length ? 'a set of images of' : 'the text of'} a sample exam paper or exam-style questions for the course. Work out the exam's format so new questions can copy its style.
+${text ? `"""\n${text.slice(0, 60000)}\n"""` : ''}
+Return JSON: {"summary":"2-4 sentences describing the paper: sections, timing if shown, total marks, how questions are worded","types":[{"type":"mcq|saq|essay","share":"rough share of marks, e.g. 30%","marks":"typical marks per question","notes":"how these questions are written"}],"commandWords":["describe","explain", "..."],"styleNotes":"anything distinctive: data/diagram questions, calculations, case studies, levels-based marking","examples":["up to 3 short example questions copied from the paper"]}`, { tier: 'default', images, kind: 'other' });
+}
+async function buildPath(c, sources) {
+  const mat = overviewText(sources);
+  const res = await askJSON(`${TUTOR}
+Course: ${c.title}
+Student: ${levelText[c.level]}.
+Goal or exam: ${c.goal || 'not given'}
+${examText(c)}
+${mat ? `Excerpts from the student's own study materials (books, slides, notes):\n"""\n${mat}\n"""` : 'The student has not uploaded any materials, so build the path from a standard syllabus for this course and level.'}
+
+Task: design an ordered learning path that takes this student from zero to exam-ready.
+Rules:
+- 3 to 8 units, each with 2 to 6 lessons. Order everything so each lesson depends only on earlier lessons. The first lesson is a gentle foundation: what the topic is about and its key vocabulary.
+- Each lesson covers 2 to 4 concepts that a beginner can learn in 10 to 15 minutes.
+- Cover everything the materials cover. Where the goal, exam, or a sensible syllabus needs something the materials miss or only mention briefly, add it with "inSources": false and a short "gapNote" saying what was missing.
+- "keywords": 4 to 10 words or phrases likely to appear in the materials for that lesson.
+Return JSON: {"overview":"2-3 friendly sentences to the student about the path","units":[{"title":"","goal":"one sentence","lessons":[{"title":"","goal":"one sentence","concepts":["",""],"keywords":["",""],"inSources":true,"gapNote":""}]}],"gaps":["one line per important topic the materials are missing"]}`, { tier: 'complex', kind: 'lesson' });
+  if (!res?.units?.length) throw new AIError('Claude did not return a learning path. Try again.');
+  res.units.forEach((u, ui) => { u.id = 'u' + ui; (u.lessons || []).forEach((l, li) => { l.id = `u${ui}l${li}`; }); });
+  return res;
+}
+function allLessons(c) { return (c.path?.units || []).flatMap((u, ui) => u.lessons.map((l, li) => ({ ...l, unit: u, ui, li, last: li === u.lessons.length - 1 }))); }
+function weakSpots(c) {
+  const w = Object.entries(c.concepts || {}).filter(([, v]) => v.got / v.of < 0.6).map(([k]) => k);
+  return w.slice(-8);
+}
+async function genLesson(c, lesson, sources) {
+  const list = allLessons(c), idx = list.findIndex(l => l.id === lesson.id);
+  const before = list.slice(Math.max(0, idx - 12), idx).map(l => `- ${l.title}: ${l.concepts.join(', ')}`).join('\n') || '(nothing yet: this is the first lesson)';
+  const next = list[idx + 1];
+  const types = c.types?.length ? c.types : ['mcq', 'saq', 'essay'];
+  const essay = types.includes('essay') && lesson.last ? 'Finish with ONE extended/essay question that pulls together this whole unit so far.' : 'Do not include essay questions in this lesson.';
+  const extracts = relevantText(sources, [lesson.title, ...lesson.concepts, ...(lesson.keywords || [])]);
+  const res = await askJSON(`${TUTOR}
+Course: ${c.title}. Student: ${levelText[c.level]}.
+${examText(c)}
+Already taught (in order):
+${before}
+THIS lesson: "${lesson.title}" (unit "${lesson.unit.title}"). Goal: ${lesson.goal}. Concepts: ${lesson.concepts.join('; ')}.
+${next ? `Next lesson will be "${next.title}" (do not teach it yet).` : ''}
+${weakSpots(c).length ? `The student has struggled with: ${weakSpots(c).join('; ')}. Where relevant, briefly reinforce these.` : ''}
+${extracts ? `Extracts from the student's materials that match this lesson:\n"""\n${extracts}\n"""` : 'No matching extracts from the student\'s materials: teach this from standard knowledge and mark every step fromSources=false.'}
+
+Write this lesson as 5 to 7 steps. Each step teaches ONE small idea in a short "learn" note, then asks ONE exam-style question that makes the student use exactly that idea, so they learn by answering.
+Order: start with the easiest recognition question, then recall and explanation, then application to a new example. Difficulty climbs gently from baby steps.
+Allowed question types: ${types.map(t => typeName[t]).join(', ')}. ${essay}
+Write questions the way the real exam would (command words, mark allocations, wording), but never test anything that has not been taught in this lesson or an earlier one.
+If an idea is not in the extracts, still teach it correctly and set "fromSources": false.
+MCQ: exactly 4 options, one correct; wrong options are common misconceptions; "why" explains every option in one sentence. MCQs are worth 1 mark.
+Short answer: 1 to 4 marks; "markScheme" has one point per mark.
+Essay: 6 to 12 marks; "markScheme" lists the points or level descriptors an examiner rewards.
+Return JSON: {"intro":"1-2 sentences","steps":[{"concept":"","learn":"2-5 short sentences; **bold** each new key term","type":"mcq|saq|essay","question":"","marks":1,"options":["","","",""],"answer":0,"why":["","","",""],"markScheme":[""],"modelAnswer":"","hint":"a nudge that does not give the answer away","fromSources":true}],"summary":["3-5 key takeaways"]}`, { tier: 'default', kind: 'lesson' });
+  return cleanSteps(res);
+}
+function cleanSteps(res) {
+  res.steps = (res.steps || []).filter(s => s && s.question).map(s => {
+    s.type = ['mcq', 'saq', 'essay'].includes(s.type) ? s.type : 'saq';
+    if (s.type === 'mcq' && !(Array.isArray(s.options) && s.options.length >= 2 && Number.isInteger(+s.answer))) s.type = 'saq';
+    if (s.type === 'mcq') { s.answer = +s.answer; s.marks = 1; }
+    s.marks = Math.max(1, +s.marks || 1); s.markScheme ||= []; return s;
+  });
+  if (!res.steps.length) throw new AIError('Claude did not return any questions. Try again.');
+  return res;
+}
+async function markAnswer(c, step, answer) {
+  return askJSON(`${TUTOR}
+Mark this answer as a fair, encouraging examiner would, then coach the student.
+${examText(c)}
+Question (${step.marks} mark${step.marks > 1 ? 's' : ''}): ${step.question}
+Mark scheme: ${step.markScheme.join(' | ') || '(none given: use your expert judgement)'}
+Model answer: ${step.modelAnswer || '(none)'}
+Student's answer: """${answer}"""
+Give credit for correct ideas in the student's own words. Do not credit vague, irrelevant or wrong statements. The score must be a whole number from 0 to ${step.marks}.
+Return JSON: {"score":0,"verdict":"correct|partial|incorrect","feedback":"2-3 sentences speaking to the student","gotRight":["points they earned"],"missing":["points they missed"],"betterAnswer":"a full-mark answer written at the student's level","misconception":"the wrong idea they seem to hold, or empty"}`, { tier: step.type === 'essay' ? 'complex' : 'default', kind: 'mark' });
+}
+async function variantStep(c, step, lesson) {
+  const r = await askJSON(`${TUTOR}
+Course: ${c.title}. The student just got this question wrong or partly wrong:
+Concept: ${step.concept}
+Question: ${step.question}
+Write ONE new practice question on exactly the same concept, using a different example or angle, slightly easier, with a fresh 2-3 sentence "learn" note that explains the idea a different way. Same JSON shape as a lesson step.
+${examText(c)}
+Return JSON: {"steps":[{"concept":"","learn":"","type":"${step.type === 'essay' ? 'saq' : step.type}","question":"","marks":1,"options":["","","",""],"answer":0,"why":["","","",""],"markScheme":[""],"modelAnswer":"","hint":"","fromSources":${!!step.fromSources}}]}`, { kind: 'mark' });
+  const s = cleanSteps(r).steps[0]; s.extra = true; return s;
+}
+async function explainSimpler(c, step) {
+  return askText(`${TUTOR}
+The student did not understand this explanation from their ${c.title} lesson:
+"${step.learn}"
+Explain the same idea again for a 10-year-old: one everyday analogy, then the idea in 3-5 very short sentences, then one tiny example. Use **bold** for the key term. No headings.`, { kind: 'mark' });
+}
+async function doubleCheck(c, step, mark) {
+  return askJSON(`${TUTOR}
+A student flagged this ${mark ? 'marking' : 'question'} as possibly wrong. Check it carefully and honestly.
+Course: ${c.title}
+Learn note: ${step.learn || ''}
+Question: ${step.question}
+${step.type === 'mcq' ? `Options: ${step.options.map((o, i) => `${'ABCD'[i]}) ${o}`).join(' | ')}. Marked correct: ${'ABCD'[step.answer]}` : `Mark scheme: ${step.markScheme.join(' | ')}\nModel answer: ${step.modelAnswer}`}
+${mark ? `Student answer: ${mark.answer}\nAwarded: ${mark.score}/${step.marks}. Feedback given: ${mark.feedback}` : ''}
+Return JSON: {"ok":true,"verdict":"one or two sentences: is it right?","correction":"what is actually correct, if anything was wrong; else empty","fairScore":${mark ? 'whole number' : 'null'}}`, { tier: 'complex', kind: 'mark' });
+}
+async function placementQuiz(c) {
+  const units = c.path.units.map((u, i) => `${i + 1}. ${u.title}: ${u.lessons.map(l => l.concepts.join(', ')).join('; ')}`).join('\n');
+  const r = await askJSON(`${TUTOR}
+Course: ${c.title}. Build a short placement check so the student can skip what they already know.
+Units:
+${units}
+Write ONE multiple-choice question per unit (in unit order) that only someone who already understands that unit's core ideas would get right. Plain wording, exactly 4 options, one correct.
+Return JSON: {"steps":[{"unit":1,"concept":"","learn":"","type":"mcq","question":"","marks":1,"options":["","","",""],"answer":0,"why":["","","",""],"fromSources":true}]}`, { kind: 'other' });
+  return cleanSteps(r);
+}
+async function examSet(c, sources) {
+  const done = allLessons(c).filter(l => c.progress?.[l.id]?.done);
+  const pool = done.length ? done : allLessons(c);
+  const concepts = pool.flatMap(l => l.concepts);
+  const extracts = relevantText(sources, concepts.slice(0, 40), 18000);
+  const r = await askJSON(`${TUTOR}
+Write a short practice exam for "${c.title}" covering ONLY these topics the student has studied: ${pool.map(l => l.title).join('; ')}.
+${examText(c)}
+Allowed types: ${(c.types?.length ? c.types : ['mcq', 'saq', 'essay']).map(t => typeName[t]).join(', ')}.
+Write 8 questions in the real exam's style and mark allocations, mixed difficulty, easier first, ending with the hardest. Leave "learn" empty.
+${extracts ? `Materials to draw on:\n"""\n${extracts}\n"""` : ''}
+Return JSON: {"intro":"1 sentence","steps":[{"concept":"","learn":"","type":"mcq|saq|essay","question":"","marks":1,"options":["","","",""],"answer":0,"why":["","","",""],"markScheme":[""],"modelAnswer":"","hint":"","fromSources":true}],"summary":[]}`, { tier: 'complex', kind: 'lesson' });
+  return cleanSteps(r);
+}
+async function coachReport(c, attempts) {
+  const by = {};
+  for (const a of attempts) { const k = a.concept || 'general'; const o = by[k] ??= { got: 0, of: 0, n: 0, lesson: a.lessonTitle, notes: [] }; o.got += a.score; o.of += a.marks; o.n++; if (a.misconception) o.notes.push(a.misconception); }
+  const lines = Object.entries(by).map(([k, v]) => `- ${k} (lesson: ${v.lesson}): ${v.got}/${v.of} over ${v.n} questions${v.notes.length ? '; misconceptions: ' + v.notes.slice(-3).join(' / ') : ''}`).join('\n');
+  const list = allLessons(c);
+  const prog = list.map(l => `${l.id} "${l.title}": ${c.progress?.[l.id]?.done ? c.progress[l.id].pct + '%' : c.progress?.[l.id]?.skipped ? 'skipped (placement)' : 'not started'}`).join('\n');
+  return askJSON(`${TUTOR}
+You are now the student's study coach. Review their results honestly and kindly.
+Course: ${c.title}. Goal: ${c.goal || 'not given'}.
+Lessons:
+${prog}
+Results by concept:
+${lines || '(no answers yet)'}
+Return JSON: {"headline":"one sentence on where they stand","strengths":["..."],"gaps":[{"concept":"","why":"what seems to be going wrong","action":"one concrete thing to do"}],"suggestions":["2-4 study suggestions for the next session"],"nextLessonId":"the lesson id they should do next"}`, { kind: 'other' });
+}
+
+/* ============ state + routing ============ */
+const S = { courses: [], course: null, tab: 'path', view: 'home', run: null };
+const app = $('#app');
+function crumb(t) { $('#crumb').textContent = t || ''; }
+function show(...nodes) { app.replaceChildren(...nodes); window.scrollTo({ top: 0 }); }
+function errorBox(e) { return h('p', { class: 'err', role: 'alert' }, e?.message || String(e)); }
+async function saveCourse(c) { c.updatedAt = Date.now(); if (c.example) return; await Store.put('courses', c.id, c); }
+async function refreshCourses() { S.courses = (await Store.list('courses')).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)); }
+function courseStats(c) {
+  const ls = allLessons(c), done = ls.filter(l => c.progress?.[l.id]?.done || c.progress?.[l.id]?.skipped);
+  return { total: ls.length, done: done.length, pct: pct(done.length, ls.length) };
+}
+function nextLesson(c) { return allLessons(c).find(l => !(c.progress?.[l.id]?.done || c.progress?.[l.id]?.skipped)); }
+
+/* ============ HOME ============ */
+function viewHome() {
+  S.view = 'home'; S.course = null; crumb('');
+  const mine = S.courses;
+  const card = c => { const st = courseStats(c);
+    return h('button', { class: 'card course', onclick: () => openCourse(c) },
+      h('div', { class: 'row' }, c.example ? h('span', { class: 'chip ex' }, 'Example') : h('span', { class: 'eyebrow' }, c.goal || 'Course'), ),
+      h('h3', {}, c.title),
+      h('div', { class: 'bar', 'aria-label': `${st.pct}% complete` }, h('i', { style: `width:${st.pct}%` })),
+      h('span', { class: 'small muted' }, `${st.done} of ${st.total} lessons`)); };
+  show(
+    h('section', { class: 'hero' },
+      h('div', { class: 'stack' },
+        h('span', { class: 'eyebrow' }, 'Learn it, then use it'),
+        h('h1', {}, 'Learn any subject one rung at a time, through the questions your exam will ask.'),
+        h('p', { class: 'muted' }, 'Upload your books, slides and notes. Add a past paper if you have one. Study Ladder starts you from the very basics and teaches each idea with a short note and a question in the exam’s own style, then marks your answer and tells you what to fix.')),
+      h('div', { class: 'steps-art', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'), h('i'), h('i'))),
+    h('div', { class: 'row' }, h('button', { class: 'btn mark', onclick: viewNew }, '+ New course')),
+    h('section', { class: 'stack' },
+      h('h2', {}, 'Your courses'),
+      mine.length ? h('div', { class: 'courses' }, mine.map(card)) : h('div', { class: 'card empty' }, h('p', {}, 'No courses yet. Tap ', h('b', {}, 'New course'), ' to upload your materials and build your first learning path.'))),
+    storeNote(),
+    communitySection());
+}
+function communitySection() {
+  const box = h('div', { class: 'stack' }, h('p', { class: 'small muted' }, h('span', { class: 'spin' }), ' Loading community courses…'));
+  const sec = h('section', { class: 'stack' }, h('h2', {}, 'Community'),
+    h('p', { class: 'small muted' }, 'Courses other students chose to share. Adding one copies its learning path into your own workspace. Their uploaded files, answers and progress are never shared.'), box);
+  Community.list().then(list => {
+    if (!list.length) { box.replaceChildren(h('div', { class: 'card empty' }, h('p', {}, 'Nobody has shared a course yet. Open one of your courses and tap ', h('b', {}, 'Share with community'), '.'))); return; }
+    const mineIds = new Set(S.courses.map(c => c.from).filter(Boolean));
+    box.replaceChildren(h('div', { class: 'courses' }, list.map(sc => {
+      const own = sc.ownerId === Store.uid, who = own ? 'You' : (sc.authorName || 'A student');
+      const lessons = (sc.path?.units || []).reduce((n, u) => n + (u.lessons?.length || 0), 0);
+      const added = mineIds.has(sc.ownerId + '/' + sc.id);
+      return h('div', { class: 'card' },
+        h('span', { class: 'eyebrow' }, sc.goal || 'Course'), h('h3', {}, sc.title),
+        h('span', { class: 'small muted' }, `${lessons} lessons · shared by ${who}`),
+        h('div', { class: 'row' },
+          own ? h('span', { class: 'chip' }, 'Your course') : added ? h('span', { class: 'chip' }, 'Added') : h('button', { class: 'btn small', onclick: e => addFromCommunity(sc, e.target) }, 'Add to my courses'),
+          !own ? h('button', { class: 'link small', onclick: async e => { const b = e.target; b.disabled = true; try { await Community.report(sc); b.replaceWith(h('span', { class: 'small muted' }, 'Reported. Thanks.')); } catch (er) { b.replaceWith(errorBox(er)); } } }, 'Report') : null,
+          Store.isAdmin && !own ? h('button', { class: 'link small', onclick: async e => { e.target.disabled = true; try { await Community.unshare(sc.id, sc.ownerId); viewHome(); } catch (er) { e.target.replaceWith(errorBox(er)); } } }, 'Remove from community') : null));
+    })));
+  }).catch(e => box.replaceChildren(errorBox(e)));
+  return sec;
+}
+async function addFromCommunity(sc, btn) {
+  btn.disabled = true; btn.textContent = 'Adding…';
+  try {
+    const c = { id: uid(), title: sc.title, goal: sc.goal || '', level: sc.level || 'new', types: sc.types || ['mcq', 'saq', 'essay'], exam: sc.exam || null, path: sc.path, progress: {}, concepts: {}, from: sc.ownerId + '/' + sc.id, createdAt: Date.now() };
+    await saveCourse(c); await refreshCourses(); openCourse(c);
+  } catch (e) { btn.replaceWith(errorBox(e)); }
+}
+const Community = {
+  async list() {
+    const { data, error } = await sb.from('community').select('owner,course_id,author_name,data,shared_at').order('shared_at', { ascending: false }).limit(200);
+    if (error) throw dbErr(error);
+    return data.map(r => ({ ...r.data, id: r.course_id, ownerId: r.owner, authorName: r.author_name }));
+  },
+  async share(c) {
+    const { error } = await sb.from('community').upsert({ owner: Store.uid, course_id: c.id, author_name: Store.name, shared_at: new Date().toISOString(),
+      data: { title: c.title, goal: c.goal || '', level: c.level, types: c.types, exam: c.exam || null, path: c.path } });
+    if (error) throw dbErr(error);
+  },
+  async unshare(id, owner = Store.uid) {
+    const { error } = await sb.from('community').delete().eq('owner', owner).eq('course_id', id);
+    if (error) throw dbErr(error);
+  },
+  async report(sc) {
+    const { error } = await sb.from('reports').insert({ course_owner: sc.ownerId, course_id: sc.id, reason: 'Reported from the community list' });
+    if (error) throw dbErr(error);
+  }
+};
+function storeNote() {
+  return h('p', { class: 'small muted' }, 'This is your own workspace. Your courses, materials, answers and progress are private to your account. You choose what to share with the community.');
+}
+
+/* ============ NEW COURSE ============ */
+function dropZone(id, label, accept, files) {
+  const list = h('div', { class: 'files' });
+  const input = h('input', { type: 'file', id, multiple: true, accept, hidden: true, onchange: () => { add(input.files); input.value = ''; } });
+  const zone = h('div', { class: 'drop', tabindex: 0, role: 'button', 'aria-label': label, onclick: () => input.click(), onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } } },
+    h('b', {}, label), h('span', { class: 'small muted' }, 'PDF, PowerPoint, Word, text or photos. Tap to choose or drop files here.'));
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('over'); add(e.dataTransfer.files); });
+  function add(fl) { for (const f of fl) files.push(f); draw(); }
+  function draw() { list.replaceChildren(...files.map((f, i) => h('div', { class: 'file' }, h('span', { class: 'nm' }, f.name), h('span', { class: 'small muted' }, (f.size / 1024 / 1024).toFixed(1) + ' MB'), h('button', { class: 'link small', onclick: () => { files.splice(i, 1); draw(); } }, 'Remove')))); }
+  return h('div', { class: 'stack' }, input, zone, list);
+}
+const ACCEPT = '.pdf,.pptx,.docx,.txt,.md,.html,.htm,.csv,image/*';
+function viewNew() {
+  S.view = 'new'; crumb('New course');
+  const mats = [], papers = [];
+  const form = h('form', { class: 'stack', onsubmit: e => { e.preventDefault(); createCourse(form, mats, papers); } },
+    h('h1', {}, 'New course'),
+    h('div', { class: 'card' },
+      h('label', { class: 'f', for: 'cTitle' }, 'What are you learning?', h('input', { type: 'text', id: 'cTitle', name: 'title', required: true, placeholder: 'e.g. IGCSE Chemistry, Year 1 Microeconomics, A-level History: Cold War' })),
+      h('label', { class: 'f', for: 'cGoal' }, h('span', {}, 'Exam or goal ', h('span', { class: 'muted' }, '(optional)')), h('input', { type: 'text', id: 'cGoal', name: 'goal', placeholder: 'e.g. AQA GCSE Biology Paper 1 in June' })),
+      h('fieldset', { class: 'stack', style: 'border:0;padding:0;margin:0' }, h('legend', { style: 'font-weight:700;font-size:14.5px;margin-bottom:6px' }, 'Where are you starting from?'),
+        h('div', { class: 'seg' },
+          h('label', {}, h('input', { type: 'radio', name: 'level', value: 'new', checked: true }), h('span', {}, h('b', {}, 'Brand new'), h('br'), h('span', { class: 'small muted' }, 'Teach me from the very beginning'))),
+          h('label', {}, h('input', { type: 'radio', name: 'level', value: 'some' }), h('span', {}, h('b', {}, 'I know a little'), h('br'), h('span', { class: 'small muted' }, 'Start at the basics, I’ll skip ahead'))),
+          h('label', {}, h('input', { type: 'radio', name: 'level', value: 'revising' }), h('span', {}, h('b', {}, 'Revising'), h('br'), h('span', { class: 'small muted' }, 'Same order, faster pace')))))),
+    h('div', { class: 'card' },
+      h('h2', {}, 'Your study materials'),
+      h('p', { class: 'small muted' }, 'Books, lecture slides, class notes. Questions are built from these. Anything important they leave out is added by the AI and labelled.'),
+      dropZone('matFiles', 'Add books, slides or notes', ACCEPT, mats),
+      h('label', { class: 'f', for: 'matPaste' }, h('span', {}, 'Or paste notes ', h('span', { class: 'muted' }, '(optional)')), h('textarea', { id: 'matPaste', name: 'paste', placeholder: 'Paste any notes here' }))),
+    h('div', { class: 'card' },
+      h('h2', {}, 'Exam-style questions ', h('span', { class: 'muted small' }, '(optional)')),
+      h('p', { class: 'small muted' }, 'A past paper or sample questions teach the AI your exam’s format: question types, marks and wording. Skip this if you don’t have one.'),
+      dropZone('paperFiles', 'Add a past paper or sample questions', ACCEPT, papers),
+      h('label', { class: 'f', for: 'paperPaste' }, h('span', {}, 'Or paste questions ', h('span', { class: 'muted' }, '(optional)')), h('textarea', { id: 'paperPaste', name: 'paperPaste', placeholder: 'Paste exam questions here' })),
+      h('fieldset', { class: 'stack', style: 'border:0;padding:0;margin:0' }, h('legend', { style: 'font-weight:700;font-size:14.5px;margin-bottom:6px' }, 'Question types to practise'),
+        h('div', { class: 'seg' }, ['mcq', 'saq', 'essay'].map(t => h('label', {}, h('input', { type: 'checkbox', name: 'types', value: t, checked: true }), h('span', {}, typeName[t] === 'MCQ' ? 'Multiple choice (MCQ)' : typeName[t] === 'Short answer' ? 'Short answer (SAQ)' : 'Essay / extended')))))),
+    h('div', { class: 'row' }, h('button', { class: 'btn mark', type: 'submit', id: 'buildBtn' }, 'Build my learning path'), h('button', { class: 'btn ghost', type: 'button', onclick: viewHome }, 'Cancel')),
+    h('div', { id: 'buildLog', class: 'card log', hidden: true }));
+  show(form);
+}
+async function createCourse(form, mats, papers) {
+  const fd = new FormData(form), logBox = $('#buildLog', form), btn = $('#buildBtn', form);
+  const types = fd.getAll('types'); if (!types.length) { logBox.hidden = false; logBox.replaceChildren(errorBox('Pick at least one question type.')); return; }
+  const c = { id: uid(), title: fd.get('title').trim(), goal: fd.get('goal').trim(), level: fd.get('level'), types, progress: {}, concepts: {}, createdAt: Date.now() };
+  logBox.hidden = false; logBox.replaceChildren(); btn.disabled = true;
+  const line = (t, cls) => { const el = h('div', { class: cls || '' }, cls ? '' : h('span', { class: 'spin' }), ' ', t); logBox.append(el); return el; };
+  const ok = (el, t) => { el.className = 'ok'; el.textContent = '✓ ' + t; };
+  try {
+    let cur;
+    for (const f of mats) { cur = line(`Reading ${f.name}`); const t = await readFile(f, m => cur.lastChild.textContent = ' ' + m); await saveSource(c.id, f.name, 'material', t); ok(cur, `${f.name} (${Math.round(t.length / 1000)}k characters)`); }
+    const paste = fd.get('paste').trim(); if (paste) await saveSource(c.id, 'Pasted notes', 'material', paste);
+    let paperText = fd.get('paperPaste').trim(), paperImgs = [];
+    for (const f of papers) {
+      cur = line(`Reading ${f.name}`);
+      if (f.type.startsWith('image/') && imgLimits) paperImgs.push(f); else paperText += '\n\n' + await readFile(f, m => cur.lastChild.textContent = ' ' + m);
+      ok(cur, f.name);
+    }
+    if (paperText.trim() || paperImgs.length) {
+      if (paperText.trim()) await saveSource(c.id, papers.map(p => p.name).join(', ') || 'Pasted questions', 'paper', paperText.trim());
+      cur = line('Working out your exam’s format');
+      c.exam = await analyseExam(paperText.trim(), paperImgs.slice(0, imgLimits?.maxCount || 0)); ok(cur, 'Exam format understood');
+    }
+    cur = line('Building your learning path from the basics up (this is the longest step)');
+    const sources = await loadSources(c.id);
+    c.path = await buildPath(c, sources); ok(cur, `Learning path ready: ${allLessons(c).length} lessons`);
+    await saveCourse(c); await refreshCourses(); openCourse(c);
+  } catch (e) { console.error(e); line('', 'err').textContent = '✗ ' + (e.message || e); btn.disabled = false; }
+}
+
+/* ============ COURSE ============ */
+function openCourse(c, tab) { S.course = c; S.tab = tab || 'path'; S.view = 'course'; viewCourse(); }
+function viewCourse() {
+  const c = S.course, st = courseStats(c), nx = nextLesson(c); crumb(c.title);
+  const tabs = [['path', 'Learning path'], ['materials', 'Materials'], ['exam', 'Exam format'], ['coach', 'Coach']];
+  const body = h('div', { class: 'stack' });
+  show(
+    h('section', { class: 'stack' },
+      h('div', { class: 'row' }, c.example ? h('span', { class: 'chip ex' }, 'Example course') : null, c.goal ? h('span', { class: 'eyebrow' }, c.goal) : null),
+      h('h1', {}, c.title),
+      h('div', { class: 'row' }, h('div', { class: 'bar', style: 'flex:1;min-width:120px' }, h('i', { style: `width:${st.pct}%` })), h('span', { class: 'marks' }, `${st.done}/${st.total} lessons`)),
+      h('div', { class: 'row' },
+        nx ? h('button', { class: 'btn mark', onclick: () => startLesson(c, nx) }, c.progress && Object.keys(c.progress).length ? `Continue: ${nx.title}` : `Start: ${nx.title}`) : h('button', { class: 'btn mark', onclick: () => startExam(c) }, 'Take a practice exam'),
+        !c.example && !Object.keys(c.progress || {}).length ? h('button', { class: 'btn ghost', onclick: () => startPlacement(c) }, 'Already know some? Take a placement check') : null,
+        shareButton(c))),
+    h('div', { class: 'tabs', role: 'tablist' }, tabs.map(([k, t]) => h('button', { class: 'tab', role: 'tab', 'aria-selected': String(S.tab === k), onclick: () => { S.tab = k; viewCourse(); } }, t))),
+    body);
+  ({ path: tabPath, materials: tabMaterials, exam: tabExam, coach: tabCoach })[S.tab](c, body);
+}
+function shareButton(c) {
+  if (c.from) return null;
+  const btn = h('button', { class: 'btn ghost', onclick: async () => {
+    btn.disabled = true; btn.textContent = c.shared ? 'Removing…' : 'Sharing…';
+    try { if (c.shared) await Community.unshare(c.id); else await Community.share(c); c.shared = !c.shared; await saveCourse(c); }
+    catch (e) { btn.after(errorBox(e)); }
+    btn.disabled = false; btn.textContent = c.shared ? 'Shared · Stop sharing' : 'Share with community';
+  } }, c.shared ? 'Shared · Stop sharing' : 'Share with community');
+  btn.title = 'Shares the course title, learning path and exam format. Your files, answers and progress stay private.';
+  return btn;
+}
+function tabPath(c, body) {
+  const nx = nextLesson(c);
+  body.append(
+    c.path.overview ? md(c.path.overview) : null,
+    ...c.path.units.map((u, ui) => h('section', { class: 'unit' },
+      h('div', { class: 'unit-h' }, h('span', { class: 'n' }, `UNIT ${ui + 1}`), h('h3', {}, u.title)),
+      u.goal ? h('p', { class: 'small muted' }, u.goal) : null,
+      h('div', { class: 'ladder' }, u.lessons.map(l => {
+        const p = c.progress?.[l.id] || {};
+        const cls = p.done ? (p.pct >= 70 ? 'done' : 'shaky') : p.skipped ? 'skip' : (nx && nx.id === l.id ? 'next' : '');
+        const lesson = allLessons(c).find(x => x.id === l.id);
+        return h('button', { class: 'rung ' + cls, onclick: () => startLesson(c, lesson) },
+          h('span', { class: 't' }, h('b', {}, l.title), h('span', { class: 'small muted' }, l.concepts.join(' · '))),
+          l.inSources === false ? h('span', { class: 'chip ai', title: l.gapNote || 'Not in your materials' }, 'AI-added') : null,
+          h('span', { class: 'pct' }, p.done ? p.pct + '%' : p.skipped ? 'skipped' : ''));
+      })))),
+    c.path.gaps?.length ? h('div', { class: 'note' }, h('b', {}, 'Missing from your materials, added by the AI: '), c.path.gaps.join('; ')) : null,
+    h('p', { class: 'small muted' }, 'Green rungs are done (70%+), amber need another go, blue were skipped after the placement check. Lessons marked AI-added aren’t in your materials, so check them against your teacher’s notes.'));
+}
+async function tabMaterials(c, body) {
+  if (c.example) { body.append(h('p', { class: 'muted' }, 'The example course has no uploads. Make your own course to add books, slides and notes.')); return; }
+  body.append(h('p', {}, h('span', { class: 'spin' }), ' Loading materials…'));
+  const srcs = await loadSources(c.id); body.replaceChildren();
+  const files = [];
+  const list = h('div', { class: 'files' }, srcs.map(s => h('div', { class: 'file' },
+    h('span', { class: 'chip' }, s.kind === 'paper' ? 'Exam' : 'Notes'), h('span', { class: 'nm' }, s.name), h('span', { class: 'small muted' }, Math.round(s.chars / 1000) + 'k chars'),
+    h('button', { class: 'link small', onclick: async e => { e.target.disabled = true; for (const id of s.ids) await Store.del('sources', id); viewCourse(); } }, 'Remove'))));
+  const log = h('div', { class: 'log' });
+  body.append(
+    srcs.length ? list : h('p', { class: 'muted' }, 'No materials yet. Your path was built from a standard syllabus.'),
+    h('div', { class: 'card' }, h('h3', {}, 'Add more'), dropZone('moreFiles', 'Add books, slides or notes', ACCEPT, files),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn', onclick: async e => { e.target.disabled = true; try { for (const f of files) { log.append(h('div', {}, 'Reading ' + f.name)); await saveSource(c.id, f.name, 'material', await readFile(f, m => log.lastChild.textContent = m)); } viewCourse(); } catch (er) { log.append(errorBox(er)); e.target.disabled = false; } } }, 'Add to course'),
+        h('button', { class: 'btn ghost', onclick: async e => { e.target.disabled = true; log.append(h('div', {}, h('span', { class: 'spin' }), ' Rebuilding the path…')); try { c.path = await buildPath(c, await loadSources(c.id)); c.progress = {}; await saveCourse(c); if (c.shared) await Community.share(c).catch(() => {}); S.tab = 'path'; viewCourse(); } catch (er) { log.append(errorBox(er)); e.target.disabled = false; } } }, 'Rebuild path from all materials')),
+      h('p', { class: 'small muted' }, 'New lessons use new materials automatically. Rebuilding the path re-plans every lesson and resets lesson progress.'), log),
+    deleteCourseBox(c));
+}
+function deleteCourseBox(c) {
+  const box = h('div', { class: 'card' }, h('h3', {}, 'Delete this course'), h('p', { class: 'small muted' }, 'Removes the course, its materials, lessons and your answers from your workspace.'));
+  const go = h('button', { class: 'btn ghost', onclick: () => {
+    go.replaceWith(h('div', { class: 'row' }, h('span', {}, 'Delete for good?'),
+      h('button', { class: 'btn', onclick: async e => { e.target.disabled = true; e.target.textContent = 'Deleting…';
+        try {
+          if (c.shared) await Community.unshare(c.id).catch(() => {});
+          for (const col of ['sources', 'attempts']) for (const r of await Store.list(col, 'courseId', c.id)) await Store.del(col, r.id);
+          for (const l of allLessons(c)) await Store.del('lessons', `${c.id}__${l.id}`).catch(() => {});
+          await Store.del('courses', c.id); await refreshCourses(); viewHome();
+        } catch (er) { box.append(errorBox(er)); } } }, 'Yes, delete'),
+      h('button', { class: 'btn ghost', onclick: () => viewCourse() }, 'Cancel')));
+  } }, 'Delete course');
+  box.append(go); return box;
+}
+function tabExam(c, body) {
+  const e = c.exam;
+  if (e) body.append(h('div', { class: 'card' }, h('h3', {}, 'What your exam looks like'), md(e.summary),
+    h('dl', { class: 'kv' }, (e.types || []).flatMap(t => [h('dt', {}, typeName[t.type] || t.type), h('dd', {}, [t.share, t.marks && `${t.marks} marks`, t.notes].filter(Boolean).join(' · '))]),
+      e.commandWords?.length ? [h('dt', {}, 'Command words'), h('dd', {}, e.commandWords.join(', '))] : null, e.styleNotes ? [h('dt', {}, 'Style'), h('dd', {}, e.styleNotes)] : null),
+    e.examples?.length ? h('details', {}, h('summary', {}, 'Example questions from your paper'), h('ul', {}, e.examples.map(x => h('li', {}, x)))) : null));
+  else body.append(h('p', { class: 'muted' }, 'No past paper added, so questions use a standard exam style for this subject.'));
+  body.append(h('p', { class: 'small muted' }, 'Practising: ', (c.types || []).map(t => typeName[t]).join(', ')));
+  if (c.example) return;
+  const files = [], log = h('div', { class: 'log' });
+  body.append(h('div', { class: 'card' }, h('h3', {}, e ? 'Replace with another paper' : 'Add a past paper'), dropZone('examFiles', 'Add a past paper or sample questions', ACCEPT, files),
+    h('button', { class: 'btn', onclick: async ev => { ev.target.disabled = true; log.replaceChildren(h('div', {}, h('span', { class: 'spin' }), ' Reading the paper…'));
+      try { let t = '', imgs = []; for (const f of files) { if (f.type.startsWith('image/') && imgLimits) imgs.push(f); else t += '\n' + await readFile(f); }
+        c.exam = await analyseExam(t.trim(), imgs.slice(0, imgLimits?.maxCount || 0)); if (t.trim()) await saveSource(c.id, files.map(f => f.name).join(', '), 'paper', t.trim()); await saveCourse(c); viewCourse(); }
+      catch (er) { log.replaceChildren(errorBox(er)); ev.target.disabled = false; } } }, 'Analyse paper'), log));
+}
+async function tabCoach(c, body) {
+  const attempts = c.example ? (S.exampleAttempts || []) : await Store.list('attempts', 'courseId', c.id);
+  const got = attempts.reduce((n, a) => n + a.score, 0), of = attempts.reduce((n, a) => n + a.marks, 0);
+  const out = h('div', { class: 'stack' });
+  const flagged = attempts.filter(a => a.flag).length;
+  body.append(
+    h('div', { class: 'row' }, h('div', { class: 'card', style: 'flex:1 1 140px' }, h('span', { class: 'eyebrow' }, 'Marks so far'), h('span', { class: 'score-big' }, of ? pct(got, of) + '%' : '–'), h('span', { class: 'small muted' }, `${got}/${of} marks from ${attempts.length} answers`)),
+      h('div', { class: 'card', style: 'flex:1 1 140px' }, h('span', { class: 'eyebrow' }, 'Shaky concepts'), h('span', { class: 'score-big' }, String(weakSpots(c).length)), h('span', { class: 'small muted' }, 'under 60% so far'))),
+    h('div', { class: 'row' },
+      h('button', { class: 'btn mark', disabled: !attempts.length, onclick: async e => { e.target.disabled = true; out.replaceChildren(h('p', {}, h('span', { class: 'spin' }), ' Checking your knowledge…'));
+        try { const r = await coachReport(c, attempts); const nl = allLessons(c).find(l => l.id === r.nextLessonId);
+          out.replaceChildren(h('div', { class: 'card' }, h('h3', {}, r.headline),
+            r.strengths?.length ? h('div', {}, h('b', {}, 'Going well'), h('ul', {}, r.strengths.map(s => h('li', {}, s)))) : null,
+            r.gaps?.length ? h('div', {}, h('b', {}, 'Gaps to fix'), h('ul', {}, r.gaps.map(g => h('li', {}, h('b', {}, g.concept + ': '), g.why, ' ', h('i', {}, g.action))))) : null,
+            r.suggestions?.length ? h('div', {}, h('b', {}, 'Next session'), h('ul', {}, r.suggestions.map(s => h('li', {}, s)))) : null,
+            nl ? h('div', {}, h('button', { class: 'btn', onclick: () => startLesson(c, nl) }, 'Go to: ' + nl.title)) : null)); }
+        catch (er) { out.replaceChildren(errorBox(er)); } e.target.disabled = false; } }, 'Check my knowledge'),
+      h('button', { class: 'btn ghost', onclick: () => startExam(c) }, 'Practice exam')),
+    attempts.length ? null : h('p', { class: 'muted small' }, 'Answer some lesson questions first, then the coach can review them.'),
+    flagged ? h('p', { class: 'small muted' }, `You flagged ${flagged} question${flagged > 1 ? 's' : ''} as possibly wrong.`) : null,
+    out);
+}
+
+/* ============ PLACEMENT ============ */
+async function startPlacement(c) {
+  show(h('div', { class: 'card empty' }, h('span', { class: 'spin' }), ' Writing a quick placement check…'));
+  try { const r = await placementQuiz(c); r.intro = 'One question per unit. Get a unit’s question right and you can skip its lessons (you can still open them any time).';
+    S.run = { c, lesson: { id: 'placement', title: 'Placement check' }, data: r, i: -1, results: [], mode: 'placement' }; viewStep(); }
+  catch (e) { show(errorBox(e), h('button', { class: 'btn ghost', onclick: viewCourse }, 'Back to course')); }
+}
+async function finishPlacement(run) {
+  const c = run.c; let skipped = 0;
+  run.data.steps.forEach((s, i) => { const r = run.results[i]; const u = c.path.units[(+s.unit || i + 1) - 1];
+    if (r?.verdict === 'correct' && u) u.lessons.forEach(l => { if (!c.progress[l.id]?.done) { c.progress[l.id] = { skipped: true }; skipped++; } }); });
+  await saveCourse(c);
+  return skipped;
+}
+
+/* ============ LESSON RUNNER ============ */
+async function startLesson(c, lesson) {
+  S.view = 'lesson'; crumb(`${c.title} · ${lesson.title}`);
+  show(h('div', { class: 'card empty' }, h('span', { class: 'spin' }), ` Preparing “${lesson.title}”…`));
+  try {
+    let data;
+    {
+      const key = `${c.id}__${lesson.id}`;
+      data = c.example ? S.exampleCache?.[key] : await Store.get('lessons', key);
+      if (!data) {
+        data = await genLesson(c, lesson, c.example ? [] : await loadSources(c.id)); data.courseId = c.id;
+        if (c.example) (S.exampleCache ??= {})[key] = data; else await Store.put('lessons', key, data);
+      }
+    }
+    S.run = { c, lesson, data: structuredClone(data), i: -1, results: [], mode: 'learn' }; viewStep();
+  } catch (e) { console.error(e); show(errorBox(e), h('div', { class: 'row' }, h('button', { class: 'btn', onclick: () => startLesson(c, lesson) }, 'Try again'), h('button', { class: 'btn ghost', onclick: viewCourse }, 'Back to course'))); }
+}
+async function startExam(c) {
+  S.view = 'lesson'; crumb(`${c.title} · Practice exam`);
+  show(h('div', { class: 'card empty' }, h('span', { class: 'spin' }), ' Writing your practice exam…'));
+  try { const data = await examSet(c, c.example ? [] : await loadSources(c.id));
+    S.run = { c, lesson: { id: 'exam', title: 'Practice exam' }, data, i: -1, results: [], mode: 'exam' }; viewStep(); }
+  catch (e) { show(errorBox(e), h('div', { class: 'row' }, h('button', { class: 'btn', onclick: () => startExam(c) }, 'Try again'), h('button', { class: 'btn ghost', onclick: viewCourse }, 'Back to course'))); }
+}
+function progressDots(run) {
+  return h('div', { class: 'progress', 'aria-hidden': 'true' }, run.data.steps.map((s, i) => { const r = run.results[i];
+    return h('i', { class: r ? ({ correct: 'good', partial: 'part', incorrect: 'bad' })[r.verdict] : i === run.i ? 'on' : '' }); }));
+}
+function viewStep() {
+  const run = S.run, { c, data } = run;
+  if (run.i < 0) { // intro
+    show(h('div', { class: 'stack' }, progressDots(run), h('span', { class: 'eyebrow' }, run.mode === 'exam' ? 'Practice exam' : run.mode === 'placement' ? 'Placement check' : 'Lesson'),
+      h('h1', {}, run.lesson.title), data.intro ? md(data.intro) : null,
+      run.lesson.inSources === false ? h('div', { class: 'note' }, 'This lesson isn’t covered in your materials, so the AI wrote it from standard knowledge. ', run.lesson.gapNote || '') : null,
+      h('p', { class: 'small muted' }, `${data.steps.length} questions · ${data.steps.reduce((n, s) => n + s.marks, 0)} marks`),
+      h('div', { class: 'row' }, h('button', { class: 'btn mark', onclick: () => { run.i = 0; viewStep(); } }, 'Begin'), h('button', { class: 'btn ghost', onclick: viewCourse }, 'Back to course'),
+        run.mode === 'learn' && !c.example ? h('button', { class: 'link small', onclick: async () => { await Store.del('lessons', `${c.id}__${run.lesson.id}`); startLesson(c, run.lesson); } }, 'Write this lesson again') : null)));
+    return;
+  }
+  if (run.i >= data.steps.length) return viewDone();
+  const s = data.steps[run.i], res = run.results[run.i];
+  const fbBox = h('div', { class: 'stack' }), learnBox = h('div');
+  if (s.learn && run.mode === 'learn') learnBox.append(h('div', { class: 'learn' }, h('span', { class: 'eyebrow' }, 'Learn' + (s.extra ? ' · another way' : '')), md(s.learn),
+    h('div', {}, h('button', { class: 'link small', onclick: async e => { const b = e.target; b.disabled = true; b.textContent = 'Explaining…';
+      try { const t = await explainSimpler(c, s); b.replaceWith(h('div', { class: 'stack' }, h('span', { class: 'eyebrow' }, 'Simpler'), md(t))); } catch (er) { b.replaceWith(errorBox(er)); } } }, 'Explain it more simply'))));
+  let picked = null, answerEl = null;
+  const head = h('div', { class: 'row' }, h('span', { class: 'chip ' + s.type }, typeName[s.type]), h('span', { class: 'marks' }, `[${s.marks} mark${s.marks > 1 ? 's' : ''}]`),
+    s.fromSources === false ? h('span', { class: 'chip ai', title: 'Not from your materials' }, 'AI-added') : null, s.extra ? h('span', { class: 'chip' }, 'Extra practice') : null);
+  let input;
+  if (s.type === 'mcq') {
+    input = h('div', { class: 'opts', role: 'group' }, s.options.map((o, i) => h('button', { class: 'opt', 'aria-pressed': 'false', onclick: e => {
+      if (res) return; picked = i; input.querySelectorAll('.opt').forEach((b, j) => b.setAttribute('aria-pressed', String(j === i))); checkBtn.disabled = false; } },
+      h('span', { class: 'k' }, 'ABCD'[i]), h('span', {}, o))));
+  } else {
+    answerEl = h('textarea', { id: 'ans-' + run.i, 'aria-label': 'Your answer', placeholder: s.type === 'essay' ? 'Plan briefly, then write your answer in full paragraphs.' : 'Write your answer in full sentences.', style: s.type === 'essay' ? 'min-height:220px' : '' });
+    answerEl.addEventListener('input', () => checkBtn.disabled = !answerEl.value.trim());
+    input = answerEl;
+  }
+  const hintBox = h('div');
+  const checkBtn = h('button', { class: 'btn mark', disabled: true, onclick: () => check() }, run.mode === 'placement' ? 'Submit' : 'Check my answer');
+  const actions = h('div', { class: 'row' }, checkBtn, s.hint && run.mode === 'learn' ? h('button', { class: 'btn ghost', onclick: e => { e.target.remove(); hintBox.append(h('p', { class: 'small' }, h('b', {}, 'Hint: '), s.hint)); } }, 'Hint') : null,
+    run.mode !== 'placement' ? h('button', { class: 'link small', onclick: () => { skipStep(); } }, 'Skip') : null);
+  show(h('div', { class: 'stack' }, progressDots(run),
+    h('div', { class: 'row' }, h('span', { class: 'eyebrow' }, `${run.lesson.title} · ${run.i + 1} of ${data.steps.length}`), h('span', { style: 'flex:1' }), h('button', { class: 'link small', onclick: viewCourse }, 'Leave lesson')),
+    learnBox, h('div', { class: 'card' }, head, md(s.question).firstChild ? h('div', { class: 'q' }, md(s.question)) : null, input, hintBox, actions), fbBox));
+  if (res) renderFeedback(res);
+
+  async function check() {
+    checkBtn.disabled = true;
+    let r;
+    if (s.type === 'mcq') {
+      const right = picked === s.answer;
+      r = { answer: s.options[picked], picked, score: right ? 1 : 0, verdict: right ? 'correct' : 'incorrect' };
+    } else {
+      const ans = answerEl.value.trim(); answerEl.readOnly = true;
+      checkBtn.replaceChildren(h('span', { class: 'spin' }), ' Marking…');
+      try { const m = await markAnswer(c, s, ans); r = { ...m, answer: ans, score: Math.max(0, Math.min(s.marks, Math.round(+m.score || 0))) };
+        r.verdict = r.score >= s.marks ? 'correct' : r.score > 0 ? 'partial' : 'incorrect'; }
+      catch (e) { answerEl.readOnly = false; checkBtn.textContent = 'Check my answer'; checkBtn.disabled = false; fbBox.replaceChildren(errorBox(e)); return; }
+    }
+    run.results[run.i] = r; await record(run, s, r); viewStep();
+  }
+  function renderFeedback(r) {
+    actions.remove(); hintBox.remove();
+    if (s.type === 'mcq') input.querySelectorAll('.opt').forEach((b, j) => { b.disabled = true; if (j === s.answer) b.classList.add('right'); else if (j === r.picked) b.classList.add('wrong');
+      if (run.mode !== 'placement' && s.why?.[j] && (j === s.answer || j === r.picked)) b.lastChild.append(h('span', { class: 'why' }, s.why[j])); b.setAttribute('aria-pressed', String(j === r.picked)); });
+    else { answerEl.value = r.answer; answerEl.readOnly = true; }
+    const title = { correct: 'Correct', partial: 'Partly right', incorrect: 'Not quite' }[r.verdict];
+    const fb = h('div', { class: 'fb ' + r.verdict }, h('h3', {}, title, h('span', { class: 'marks' }, `${r.score}/${s.marks}`)));
+    if (run.mode !== 'placement') {
+      if (r.feedback) fb.append(md(r.feedback));
+      if (r.gotRight?.length) fb.append(h('div', {}, h('b', { class: 'small' }, 'You earned marks for'), h('ul', { class: 'small' }, r.gotRight.map(x => h('li', {}, x)))));
+      if (r.missing?.length) fb.append(h('div', {}, h('b', { class: 'small' }, 'To get full marks, add'), h('ul', { class: 'small' }, r.missing.map(x => h('li', {}, x)))));
+      if (r.misconception) fb.append(h('p', { class: 'small' }, h('b', {}, 'Watch out: '), r.misconception));
+      const ans = r.betterAnswer || s.modelAnswer;
+      if (ans && s.type !== 'mcq') fb.append(h('details', {}, h('summary', {}, 'See a full-mark answer'), md(ans)));
+    }
+    const flagOut = h('div');
+    const next = h('div', { class: 'row' },
+      h('button', { class: 'btn', onclick: () => { run.i++; viewStep(); } }, run.i + 1 < data.steps.length ? 'Next question' : 'Finish'),
+      r.verdict !== 'correct' && run.mode === 'learn' && !run.data.steps[run.i + 1]?.extra ? h('button', { class: 'btn ghost', onclick: async e => { const b = e.target; b.disabled = true; b.textContent = 'Writing a new question…';
+        try { const v = await variantStep(c, s, run.lesson); run.data.steps.splice(run.i + 1, 0, v); run.i++; viewStep(); } catch (er) { b.replaceWith(errorBox(er)); } } }, 'Practise this again') : null,
+      run.mode !== 'placement' ? h('button', { class: 'link small', onclick: async e => { const b = e.target; b.disabled = true; b.textContent = 'Double-checking…';
+        try { const d = await doubleCheck(c, s, s.type === 'mcq' ? null : r); r.flag = true; await record(run, s, r, true);
+          let fix = '';
+          if (Number.isInteger(d.fairScore) && d.fairScore !== r.score && s.type !== 'mcq') { r.score = Math.max(0, Math.min(s.marks, d.fairScore)); r.verdict = r.score >= s.marks ? 'correct' : r.score > 0 ? 'partial' : 'incorrect'; await record(run, s, r, true); fix = ` Your mark is now ${r.score}/${s.marks}.`; }
+          b.replaceWith(h('div', { class: 'note' }, h('b', {}, d.ok ? 'Checked: this looks right. ' : 'Good catch. '), d.verdict, d.correction ? h('div', {}, h('b', {}, 'Correction: '), d.correction) : null, fix));
+        } catch (er) { b.replaceWith(errorBox(er)); } } }, 'This looks wrong') : null);
+    fbBox.replaceChildren(fb, next, flagOut);
+  }
+  async function skipStep() { run.results[run.i] = { answer: '', score: 0, verdict: 'incorrect', skipped: true }; await record(run, s, run.results[run.i]); run.i++; viewStep(); }
+}
+async function record(run, s, r, update) {
+  if (run.mode === 'placement') return;
+  const c = run.c; r.attemptId ||= uid();
+  const a = { courseId: c.id, lessonId: run.lesson.id, lessonTitle: run.lesson.title, concept: s.concept || run.lesson.title, type: s.type, question: s.question.slice(0, 500), answer: (r.answer || '').slice(0, 4000), score: r.score, marks: s.marks, verdict: r.verdict, misconception: r.misconception || '', flag: !!r.flag, at: Date.now() };
+  if (!update) { const k = a.concept; const o = (c.concepts ??= {})[k] ??= { got: 0, of: 0 }; o.got += r.score; o.of += s.marks; }
+  if (c.example) { const list = S.exampleAttempts ??= []; const i = list.findIndex(x => x.id === r.attemptId); if (i >= 0) list[i] = { ...a, id: r.attemptId }; else list.push({ ...a, id: r.attemptId }); return; }
+  try { await Store.put('attempts', r.attemptId, a); if (!update) await saveCourse(c); } catch (e) { console.warn('save failed', e); }
+}
+async function viewDone() {
+  const run = S.run, { c, data } = run;
+  const got = run.results.reduce((n, r) => n + (r?.score || 0), 0), of = data.steps.reduce((n, s) => n + s.marks, 0), p = pct(got, of);
+  if (run.mode === 'placement') {
+    const skipped = await finishPlacement(run);
+    show(h('div', { class: 'stack' }, h('h1', {}, 'Placement done'), h('p', {}, skipped ? `You can skip ${skipped} lesson${skipped > 1 ? 's' : ''} you already know. They’re marked blue on your path and you can open them any time.` : 'Starting from the beginning is the right call. Your path is ready.'),
+      h('div', { class: 'row' }, h('button', { class: 'btn mark', onclick: () => openCourse(c) }, 'Go to my path'))));
+    return;
+  }
+  if (run.mode === 'learn') { (c.progress ??= {})[run.lesson.id] = { done: true, pct: p, at: Date.now() }; await saveCourse(c); if (!c.example) await refreshCourses(); }
+  const weak = data.steps.filter((s, i) => run.results[i]?.verdict !== 'correct').map(s => s.concept).filter((v, i, a) => v && a.indexOf(v) === i);
+  const nx = nextLesson(c);
+  show(h('div', { class: 'stack' }, progressDots(run), h('span', { class: 'eyebrow' }, run.mode === 'exam' ? 'Practice exam finished' : 'Lesson finished'), h('h1', {}, run.lesson.title),
+    h('div', { class: 'row' }, h('span', { class: 'score-big' }, p + '%'), h('span', { class: 'marks' }, `${got}/${of} marks`)),
+    h('p', {}, p >= 85 ? 'Strong work. You’ve got this.' : p >= 70 ? 'Good. A quick review of the points below will lock it in.' : p >= 40 ? 'You’re getting there. Go over the concepts below, then try the lesson again or move on carefully.' : 'This one needs another go. That’s normal at the start: try it again and use the hints.'),
+    data.summary?.length ? h('div', { class: 'card' }, h('h3', {}, 'Key takeaways'), h('ul', {}, data.summary.map(x => h('li', { html: inline(x) })))) : null,
+    weak.length ? h('div', { class: 'card' }, h('h3', {}, 'Review these'), h('ul', {}, weak.map(x => h('li', {}, x)))) : null,
+    h('div', { class: 'row' },
+      nx && run.mode === 'learn' ? h('button', { class: 'btn mark', onclick: () => startLesson(c, nx) }, 'Next lesson: ' + nx.title) : null,
+      run.mode === 'learn' ? h('button', { class: 'btn ghost', onclick: () => { S.run.i = -1; S.run.results = []; S.run.data.steps = S.run.data.steps.filter(s => !s.extra); viewStep(); } }, 'Redo this lesson') : null,
+      h('button', { class: 'btn ghost', onclick: () => openCourse(c) }, 'Back to path'))));
+}
+
+/* ============ boot ============ */
+function viewSignIn() {
+  S.view = 'signin'; crumb('');
+  const agree = h('input', { type: 'checkbox', id: 'agree' });
+  const msg = h('p', { class: 'err', role: 'alert', hidden: true });
+  const btn = h('button', { class: 'btn mark', disabled: true, onclick: async () => {
+    btn.disabled = true; btn.textContent = 'Opening Google…';
+    const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+    if (error) { msg.hidden = false; msg.textContent = 'Google sign-in did not start. Try again.'; btn.disabled = false; btn.textContent = 'Continue with Google'; }
+  } }, 'Continue with Google');
+  agree.addEventListener('change', () => { btn.disabled = !agree.checked; });
+  show(
+    h('section', { class: 'hero' },
+      h('div', { class: 'stack' },
+        h('span', { class: 'eyebrow' }, 'Learn it, then use it'),
+        h('h1', {}, 'Learn any subject one rung at a time, through the questions your exam will ask.'),
+        h('p', { class: 'muted' }, 'Upload your books, slides and notes. Add a past paper if you have one. Study Ladder starts you from the very basics and teaches each idea with a short note and a question in the exam’s own style, then marks your answer and tells you what to fix.')),
+      h('div', { class: 'steps-art', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'), h('i'), h('i'))),
+    h('div', { class: 'card', style: 'max-width:460px' },
+      h('h2', {}, 'Sign in to start'),
+      h('p', { class: 'small muted' }, 'You get your own private workspace. Your courses, materials and answers are only visible to you.'),
+      h('label', { class: 'row small', for: 'agree', style: 'flex-wrap:nowrap;align-items:flex-start' }, agree, h('span', {}, 'I’m 13 or older, or I have permission from a parent or guardian.')),
+      h('div', {}, btn), msg));
+}
+$('#homeBtn').addEventListener('click', async () => { if (!Store.uid) return; await refreshCourses().catch(() => {}); viewHome(); });
+$('#signOut').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
+(async function boot() {
+  try {
+    const cfg = await (await fetch('/api/config')).json();
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) throw new Error('not configured');
+    sb = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  } catch (e) {
+    show(h('div', { class: 'card empty' }, h('p', {}, 'Study Ladder isn’t set up yet. The site owner needs to add the Supabase settings.'))); return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return viewSignIn();
+  await Store.init(session.user);
+  $('#storeBadge').textContent = Store.name; $('#signOut').hidden = false;
+  try { await refreshCourses(); } catch (e) { console.warn(e); }
+  viewHome();
+})();
+</script>
+</body>
+</html>
