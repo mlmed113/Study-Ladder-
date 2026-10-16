@@ -998,7 +998,8 @@ function viewSignIn() {
       h('h2', {}, 'Sign in to start'),
       h('p', { class: 'small muted' }, 'You get your own private workspace. Your courses, materials and answers are only visible to you.'),
       h('label', { class: 'row small', for: 'agree', style: 'flex-wrap:nowrap;align-items:flex-start' }, agree, h('span', {}, 'I’m 13 or older, or I have permission from a parent or guardian.')),
-      h('div', {}, btn), msg));
+      h('div', {}, btn), msg,
+      h('p', { class: 'small muted' }, h('a', { href: '/privacy.html' }, 'Privacy policy'))));
 }
 $('#homeBtn').addEventListener('click', async () => { if (!Store.uid) return; await refreshCourses().catch(() => {}); viewHome(); });
 $('#signOut').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
